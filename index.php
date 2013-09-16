@@ -1,17 +1,19 @@
-<html>
-<head>
-	<title></title>
-</head>
-<body>
-
-<pre>
-
 <?php
 
+// ----- conf -----
+$iterations = 50;			//	how many sets of 20 images to use
+
+
+// ----- load -----
+include "conf.php";
+
+
+
 if(!isset($_GET["query"])) {
-	echo "call the script with ?query=whatyouwanttoquery";
-	exit;
+	echo "call the script with ?query=whatyouwanttoquery"; exit;
 }
+
+
 
 $query = $_GET["query"];
 
@@ -19,32 +21,31 @@ $url = "http://api.tumblr.com/v2/tagged?tag=".$query."&limit=20&api_key=" . $api
 $results = array();
 $before = "";
 
-for($i = 0; $i < 50; $i++) {
+// iterate over images
+for($i = 0; $i < $iterations; $i++) {
 	$data = file_get_contents($url . $before);
 	$data = json_decode($data);
 
 	$before = $data->response[count($data->response) - 1]->timestamp;
-
 	$results = array_merge($results,$data->response);
+
+	echo $i . " "; flush(); ob_flush();
 }
 
 
-//print_r($results);
-//exit;
-
-$gdf = "nodedef>name VARCHAR,label VARCHAR,count INT\n";
-
+// create graph
 $tags = array();
 $edges = array();
 
 foreach($results as $item) {
-	//echo implode(",",$item->tags) . "\n";
 
 	$tmptags = $item->tags;
 
+	// iterate over half of ajacency matrix
 	for($i = 0; $i < count($tmptags); $i++) {
 
 		$tmptags[$i] = strtolower($tmptags[$i]);
+		$tmptags[$i] = preg_replace("/'/", " ", $tmptags[$i]);
 
 		if(!isset($tags[$tmptags[$i]])) {
 			$tags[$tmptags[$i]] = 1;
@@ -55,6 +56,7 @@ foreach($results as $item) {
 		for($j = $i; $j < count($tmptags); $j++) {
 
 			$tmptags[$j] = strtolower($tmptags[$j]);
+			$tmptags[$j] = preg_replace("/'/", " ", $tmptags[$j]);
 
 			$tmpedge = array($tmptags[$i],$tmptags[$j]);
 			asort($tmpedge);
@@ -71,8 +73,10 @@ foreach($results as $item) {
 
 arsort($tags);
 
+
+// create output
+$gdf = "nodedef>name VARCHAR,label VARCHAR,count INT\n";
 foreach($tags as $key => $value) {
-	//echo $key . ":" . $value . '<br/>';
 	$gdf .= md5($key) . "," . $key . "," . $value . "\n";
 }
 
@@ -83,12 +87,6 @@ foreach($edges as $key => $value) {
 	$gdf .= md5($tmpedge[0]) . "," . md5($tmpedge[1]) . "," . $value . "\n";
 }
 
-
-echo $gdf;
+file_put_contents("tumblr_" . $query . "_" .date("Y_m_d-H_i_s") . ".gdf", $gdf);
 
 ?>
-
-</pre>
-
-</body>
-</html>
