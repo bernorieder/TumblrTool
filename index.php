@@ -69,9 +69,7 @@ foreach($results as $item) {
 	}
 }
 
-asort($tags);
-
-$tags = array_reverse($tags);
+arsort($tags);
 
 foreach($tags as $key => $value) {
 	//echo $key . ":" . $value . '<br/>';
@@ -85,8 +83,6 @@ foreach($edges as $key => $value) {
 	$gdf .= md5($tmpedge[0]) . "," . md5($tmpedge[1]) . "," . $value . "\n";
 }
 
-//print_r($tags);
-//print_r($edges);
 
 echo $gdf;
 
