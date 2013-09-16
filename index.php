@@ -8,20 +8,20 @@ $iterations = 50;			//	how many sets of 20 images to use
 include "conf.php";
 
 
-
+// check query parameter
 if(!isset($_GET["query"])) {
 	echo "call the script with ?query=whatyouwanttoquery"; exit;
 }
-
-
-
 $query = $_GET["query"];
 
+// api URL
 $url = "http://api.tumblr.com/v2/tagged?tag=".$query."&limit=20&api_key=" . $api_key . "&before=";
+
+
+// retrieve $iterate packs of 20 images
 $results = array();
 $before = "";
 
-// iterate over images
 for($i = 0; $i < $iterations; $i++) {
 	$data = file_get_contents($url . $before);
 	$data = json_decode($data);
