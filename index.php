@@ -18,7 +18,7 @@ $query = $_GET["query"];
 $url = "http://api.tumblr.com/v2/tagged?tag=".$query."&limit=20&api_key=" . $api_key . "&before=";
 
 
-// retrieve $iterate packs of 20 images
+// retrieve $iterations	 packs of 20 images
 $results = array();
 $before = "";
 
@@ -30,6 +30,7 @@ for($i = 0; $i < $iterations; $i++) {
 	$results = array_merge($results,$data->response);
 
 	echo $i . " "; flush(); ob_flush();
+	sleep(1);
 }
 
 
