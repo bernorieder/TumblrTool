@@ -10,17 +10,19 @@ include "conf.php";
 
 // check query parameter
 if(!isset($_GET["query"])) {
-	echo "call the script with ?query=whatyouwanttoquery"; exit;
+	echo "call the script with ?query=whatyouwanttoquery, e.g. https://lab.digitalmethods.net/~brieder/tumblr/tagnet/?query=yourtag"; exit;
 }
 $query = $_GET["query"];
 
 // api URL
-$url = "http://api.tumblr.com/v2/tagged?tag=".$query."&limit=20&api_key=" . $api_key . "&before=";
+$url = "http://api.tumblr.com/v2/tagged?tag=".urlencode($query)."&limit=20&api_key=" . $api_key . "&before=";
 
 
 // retrieve $iterations	 packs of 20 images
 $results = array();
 $before = "";
+
+echo "(getting ".$iterations." iterations of 20 images) ";
 
 for($i = 0; $i < $iterations; $i++) {
 	$data = file_get_contents($url . $before);
@@ -46,7 +48,7 @@ foreach($results as $item) {
 	for($i = 0; $i < count($tmptags); $i++) {
 
 		$tmptags[$i] = strtolower($tmptags[$i]);
-		$tmptags[$i] = preg_replace("/'/", " ", $tmptags[$i]);
+		$tmptags[$i] = preg_replace("/,/", " ", $tmptags[$i]);
 
 		if(!isset($tags[$tmptags[$i]])) {
 			$tags[$tmptags[$i]] = 1;
@@ -57,7 +59,7 @@ foreach($results as $item) {
 		for($j = $i; $j < count($tmptags); $j++) {
 
 			$tmptags[$j] = strtolower($tmptags[$j]);
-			$tmptags[$j] = preg_replace("/'/", " ", $tmptags[$j]);
+			$tmptags[$j] = preg_replace("/,/", " ", $tmptags[$j]);
 
 			$tmpedge = array($tmptags[$i],$tmptags[$j]);
 			asort($tmpedge);
@@ -88,6 +90,10 @@ foreach($edges as $key => $value) {
 	$gdf .= md5($tmpedge[0]) . "," . md5($tmpedge[1]) . "," . $value . "\n";
 }
 
-file_put_contents("tumblr_" . $query . "_" .date("Y_m_d-H_i_s") . ".gdf", $gdf);
+$filename = "tumblr_" . $query . "_" .date("Y_m_d-H_i_s") . ".gdf";
+
+file_put_contents($filename, $gdf);
+
+echo '<br /><br />your file: <a href="https://lab.digitalmethods.net/~brieder/tumblr/tagnet/'.$filename.'">'.$filename.'</a>';
 
 ?>
