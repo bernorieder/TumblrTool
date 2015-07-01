@@ -26,7 +26,7 @@ ini_set( 'default_charset', 'UTF-8' );
 	</ul>
 	</p>
 	
-	<!-- <p>Source code and some documentation are available <a href="https://github.com/bernorieder/instagram-tagnet" target="_blank">here</a>.</p> -->
+	<p>Source code and some documentation are available <a href="https://github.com/bernorieder/TumblrTool" target="_blank">here</a>.</p>
 	
 	<hr />
 		
