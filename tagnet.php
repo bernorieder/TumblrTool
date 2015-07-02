@@ -45,39 +45,73 @@ ini_set('max_execution_time', 3000);
 
 // ----- load -----
 include "conf.php";
+include "common.php";
 
 
 // check query parameter
 if(!isset($_GET["tag"])) { echo "missing tag"; exit; }
 if(!isset($_GET["iterations"]) || preg_match("/\D/", $crawldepth) || $_GET["iterations"] > 100) { echo "iteration parameter problem"; exit; }
 
-$tag = $_GET["tag"];
+$tag = preg_replace("/#/","", $_GET["tag"]);
 $iterations = $_GET["iterations"];
 $htmloutput = ($_GET["htmloutput"] == "on") ? true:false;
 $showimages = ($_GET["showimages"] == "off") ? false:$_GET["showimages"];
+$mode = $_GET["mode"];
+
 
 // api URL
 $url = "http://api.tumblr.com/v2/tagged?tag=".urlencode($tag)."&limit=20&api_key=" . $api_key . "&before=";
 
 
-// retrieve $iterations	 packs of 20 images
-$results = array();
-$before = "";
-
-echo "Getting ".$iterations." iterations of 20 images: "; flush(); ob_flush();
-
-for($i = 0; $i < $iterations; $i++) {
+if($mode == "last") {
+	// retrieve $iterations	 packs of 20 images
+	$results = array();
+	$before = "";
 	
-	$data = file_get_contents($url . $before);
-	$data = json_decode($data);
+	echo "Getting ".$iterations." iterations of 20 posts: "; flush(); ob_flush();
 	
-	//print_r($data); exit;
+	for($i = 0; $i < $iterations; $i++) {
+		
+		$data = doAPIRequest($url . $before);
+	
+		$before = $data->response[count($data->response) - 1]->timestamp;
+		$results = array_merge($results,$data->response);
+	
+		echo ($i + 1) . " "; flush(); ob_flush();
+		sleep(0.5);
+	}
+}
 
-	$before = $data->response[count($data->response) - 1]->timestamp;
-	$results = array_merge($results,$data->response);
-
-	echo $i . " "; flush(); ob_flush();
-	sleep(0.5);
+if($mode == "daterange") {
+	
+	$results = array();
+	$i = 0;
+	
+	$date_start = strtotime($_GET["date_start"] . " 23:59:59");
+	$date_end = strtotime($_GET["date_end"] . " 00:00:00");
+	
+	$before = $date_start;
+	
+	echo "Getting posts between timestamp " . $date_start .  " and " . $date_end . ": "; flush(); ob_flush();
+	
+	while($before > $date_end) {
+		
+		echo ($i + 1) . " (" . $before . ") "; flush(); ob_flush();
+		$i++;
+		
+		$data = doAPIRequest($url . $before);
+	
+		$before = $data->response[count($data->response) - 1]->timestamp;
+		
+		foreach($data->response as $response) {
+			if($response->timestamp >= $date_end) {
+				$results[] = $response;
+			}
+		}
+	
+		sleep(0.5);
+	}
+	
 }
 
 
@@ -96,6 +130,7 @@ foreach($results as $item) {
 							  "date" => $item->date,
 							  "date_unix" => $item->timestamp,
 							  "caption" => $item->caption,
+							  "blog_name" => $item->blog_name,
 							  "note_count" => $item->note_count,
 							  "post_url" => $item->post_url,
 							  "tags" => implode(", ",$item->tags),
@@ -140,6 +175,10 @@ foreach($results as $item) {
 arsort($tags);
 
 
+echo '<br /><br />The script has extracted tags from ' . count($posts) . ' posts.<br /><br />';
+
+if(count($posts) == 0) { exit; }
+
 // create GDF output
 $gdf = "nodedef>name VARCHAR,label VARCHAR,count INT\n";
 foreach($tags as $key => $value) {
@@ -168,9 +207,7 @@ $filename = "tumblr_" . $tag . "_" .date("Y_m_d-H_i_s");
 file_put_contents($filename."_media.tab", $tab_posts);
 file_put_contents($filename."_cotag.gdf", $gdf);
 
-echo '<br /><br />The script has extracted tags from ' . count($posts) . ' posts.<br /><br />
-
-your files:<br />
+echo 'your files:<br />
 <a href="'.$base_url.$filename.'_media.tab">'.$filename.'_media.tab</a><br />
 <a href="'.$base_url.$filename.'_cotag.gdf">'.$filename.'_cotag.gdf</a><br /><br />';
 
