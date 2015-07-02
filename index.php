@@ -19,7 +19,7 @@ ini_set( 'default_charset', 'UTF-8' );
 
 	<h1>TumblerTool</h1>
 	
-	<p>This script retrieves posts tagged with a specific term from tumblr (the /tagged endpoint documented <a href="https://www.tumblr.com/docs/en/api/v2" target="_blank">here</a>) and creates:
+	<p>This script retrieves posts tagged with a specific term from tumblr (the /tagged endpoint documented <a href="https://www.tumblr.com/docs/en/api/v2#tagged-method" target="_blank">here</a>) and creates:
 	<ul>	
 		<li>a tabular file containing basic descriptions of the retrieved posts;</li>
 		<li>a co-tag file (GDF format) to analyze e.g. in <a href="http://gephi.org" target="_blank">gephi</a>;</li>
