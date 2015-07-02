@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 
-	<title>Instagram Hashtag Explorer</title>
+	<title>TumblrTool</title>
 	
 	<link rel="stylesheet" type="text/css" href="main.css" />
 	
@@ -54,6 +54,7 @@ if(!isset($_GET["iterations"]) || preg_match("/\D/", $crawldepth) || $_GET["iter
 $tag = $_GET["tag"];
 $iterations = $_GET["iterations"];
 $htmloutput = ($_GET["htmloutput"] == "on") ? true:false;
+$showimages = ($_GET["showimages"] == "off") ? false:$_GET["showimages"];
 
 // api URL
 $url = "http://api.tumblr.com/v2/tagged?tag=".urlencode($tag)."&limit=20&api_key=" . $api_key . "&before=";
@@ -91,11 +92,14 @@ foreach($results as $item) {
 	//print_r($item);
 
 	$posts[$item->id] = array("id" => $item->id,
-							  "type" => $item-type,
+							  "type" => $item->type,
 							  "date" => $item->date,
 							  "date_unix" => $item->timestamp,
 							  "caption" => $item->caption,
-							  "tags" => implode(", ",$item->tags)							  
+							  "note_count" => $item->note_count,
+							  "post_url" => $item->post_url,
+							  "tags" => implode(", ",$item->tags),
+							  "photo" => $item->photos[0]->original_size->url						  
 							  );
 										
 										
@@ -188,14 +192,22 @@ if($htmloutput) {
 		echo '<tr>';
 		foreach($post as $element) {
 						
-			/*
-			if(preg_match("/\.jpg/", $element)) {
-				echo '<td><img src="'.$element.'"></td>';	
-			} else if(preg_match("/https:/", $element) || preg_match("/http:/", $element)) {
-				echo '<td><a href="'.$element.'">'.$element.'</a></td>';
-			*/
 			
-			echo '<td>'.$element.'</td>';
+			if(preg_match("/\.jpg/", $element) || preg_match("/\.png/", $element) || preg_match("/\.gif/", $element)) {
+
+				if($showimages == false) {
+					echo '<td>'.$element.'</td>';	
+				} else if($showimages == "original") {
+					echo '<td><img src="'.$element.'"></td>';	
+				} else {
+					echo '<td><img src="'.$element.'" width="'.$showimages.'"></td>';	
+				}
+
+			} else if(preg_match("/http:/", $element) || preg_match("/http:/", $element)) {
+				echo '<td><a href="'.$element.'">'.$element.'</a></td>';
+			} else {
+				echo '<td>'.$element.'</td>';
+			}
 		}
 		echo '</tr>';
 	}
