@@ -19,7 +19,7 @@ ini_set( 'default_charset', 'UTF-8' );
 
 	<h1>TumblerTool</h1>
 	
-	<p>This script retrieves posts tagged with a specific term from tumblr (the /tagged endpoint documented <a href="https://www.tumblr.com/docs/en/api/v2#tagged-method" target="_blank">here</a>) and creates:
+	<p>This script retrieves posts tagged with a specific term from tumblr (the /tagged API endpoint documented <a href="https://www.tumblr.com/docs/en/api/v2#tagged-method" target="_blank">here</a>) and creates:
 	<ul>	
 		<li>a tabular file containing basic descriptions of the retrieved posts;</li>
 		<li>a co-tag file (GDF format) to analyze e.g. in <a href="http://gephi.org" target="_blank">gephi</a>;</li>
@@ -30,27 +30,52 @@ ini_set( 'default_charset', 'UTF-8' );
 	
 	<hr />
 		
-	<p>Specify a tag and the number of media to retrieve:</p>
+	<p>Specify a tag and the number of posts to retrieve:</p>
 
 	<table>
 		<form action="tagnet.php" method="get">
+			
 			<tr>
-				<td>Tag:</td>
-				<td><input type="text" name="tag" /></td>
+				<td colspan="3">1) choose a tag:</td>
+			</tr>
+			
+			<tr>
 				<td></td>
+				<td>tag:</td>
+				<td><input type="text" name="tag" /></td>
 			</tr>
+			
 			<tr>
-				<td>Iterations:</td>
-				<td><input type="text" name="iterations" max="100" value="1" /> </td>
-				<td>(max. 100, one iteration gets 20 items)</td>
+				<td colspan="3">2) choose a method:</td>
 			</tr>
+			
+			
 			<tr>
-				<td>HTML output:</td>
-				<td><input type="checkbox" name="htmloutput" /></td>
-			<td>(adds HTML result tables in addition to the file exports)</td>
+				<td><input type="radio" name="mode" value="last" checked="checked" /></td>
+				<td>last posts:</td>
+				<td><input type="text" name="iterations" max="100" value="1" /> (one iteration gets 20 items, max. 100 iterations) </td>
 			</tr>
+			
 			<tr>
-				<td>Show images:</td>
+				<td><input type="radio" name="mode" value="daterange" /></td>
+				<td>date range:</td>
+				<td><input type="text" name="date_end" max="100" /> - <input type="text" name="date_start" max="100" /> (YYYY-MM-DD, more recent date second)</td>
+			</tr>
+			
+			
+			<tr>
+				<td colspan="3">3) HTML output:</td>
+			</tr>
+			
+			<tr>
+				<td></td>
+				<td>show HTML:</td>
+				<td><input type="checkbox" name="htmloutput" /> (adds HTML result tables in addition to the file exports)</td>
+			</tr>
+			
+			<tr>
+				<td></td>
+				<td>show images:</td>
 				<td>
 					<select name="showimages">
 						<option value="off">no preview</option>
