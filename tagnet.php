@@ -62,10 +62,10 @@ $mode = $_GET["mode"];
 // api URL
 $url = "http://api.tumblr.com/v2/tagged?tag=".urlencode($tag)."&limit=20&api_key=" . $api_key . "&before=";
 
+$results = array();
 
 if($mode == "last") {
-	// retrieve $iterations	 packs of 20 images
-	$results = array();
+
 	$before = "";
 	
 	echo "Getting ".$iterations." iterations of 20 posts: "; flush(); ob_flush();
@@ -84,7 +84,6 @@ if($mode == "last") {
 
 if($mode == "daterange") {
 	
-	$results = array();
 	$i = 0;
 	
 	$date_start = strtotime($_GET["date_start"] . " 23:59:59");
@@ -111,7 +110,6 @@ if($mode == "daterange") {
 	
 		sleep(0.5);
 	}
-	
 }
 
 
@@ -129,20 +127,23 @@ foreach($results as $item) {
 							  "type" => $item->type,
 							  "date" => $item->date,
 							  "timestamp" => $item->timestamp,
+							  "title" => clean($item->title),
 							  "caption" => clean($item->caption),
 							  "blog_name" => clean($item->blog_name),
 							  "note_count" => $item->note_count,
 							  "post_url" => $item->post_url,
 							  "tags" => implode(", ",$item->tags),
-							  "photo" => $item->photos[0]->original_size->url						  
+							  "photo" => $item->photos[0]->original_size->url,
+							  "source_url" => $item->source_url,
+							  "source_title" => $item->source_title				  
 							  );
+							  
+	if($item->type == "video") { $posts[$item->id]["photo"] = $item->thumbnail_url; }  
 										
-										
-	//print_r($posts); exit;
-
-	$tmptags = $item->tags;
 
 	// iterate over half of ajacency matrix
+	$tmptags = $item->tags;
+	
 	for($i = 0; $i < count($tmptags); $i++) {
 
 		$tmptags[$i] = strtolower($tmptags[$i]);
@@ -175,7 +176,7 @@ foreach($results as $item) {
 arsort($tags);
 
 
-echo '<p>The script has extracted tags from ' . count($posts) . ' posts.</p>';
+echo '<p>The script has extracted data from ' . count($posts) . ' posts.</p>';
 
 if(count($posts) == 0) { exit; }
 
@@ -216,7 +217,7 @@ zipit($filename,$files);
 // HTML data table
 if($htmloutput) {
 	
-	//print_r($media);
+	echo '<hr /><h2>HTML output</h2>';
 	
 	echo '<table>';
 	
@@ -235,7 +236,7 @@ if($htmloutput) {
 			if(preg_match("/\.jpg/", $element) || preg_match("/\.png/", $element) || preg_match("/\.gif/", $element)) {
 
 				if($showimages == false) {
-					echo '<td>'.$element.'</td>';	
+					echo '<td>	<a href="'.$element.'">'.$element.'</a></td>';	
 				} else if($showimages == "original") {
 					echo '<td><img src="'.$element.'"></td>';	
 				} else {
