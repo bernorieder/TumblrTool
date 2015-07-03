@@ -94,7 +94,7 @@ if($mode == "daterange") {
 	
 	echo "Getting posts between timestamp " . $date_start .  " and " . $date_end . ": "; flush(); ob_flush();
 	
-	while($before > $date_end) {
+	while($before >= $date_end) {
 		
 		echo ($i + 1) . " (" . $before . ") "; flush(); ob_flush();
 		$i++;
@@ -128,9 +128,9 @@ foreach($results as $item) {
 	$posts[$item->id] = array("id" => $item->id,
 							  "type" => $item->type,
 							  "date" => $item->date,
-							  "date_unix" => $item->timestamp,
-							  "caption" => $item->caption,
-							  "blog_name" => $item->blog_name,
+							  "timestamp" => $item->timestamp,
+							  "caption" => clean($item->caption),
+							  "blog_name" => clean($item->blog_name),
 							  "note_count" => $item->note_count,
 							  "post_url" => $item->post_url,
 							  "tags" => implode(", ",$item->tags),
@@ -175,9 +175,10 @@ foreach($results as $item) {
 arsort($tags);
 
 
-echo '<br /><br />The script has extracted tags from ' . count($posts) . ' posts.<br /><br />';
+echo '<p>The script has extracted tags from ' . count($posts) . ' posts.</p>';
 
 if(count($posts) == 0) { exit; }
+
 
 // create GDF output
 $gdf = "nodedef>name VARCHAR,label VARCHAR,count INT\n";
@@ -201,15 +202,16 @@ foreach($posts as $post) {
 }
 
 
-$filename = "tumblr_" . $tag . "_" .date("Y_m_d-H_i_s");
-
+// file download 
+$filename = "data/tumblr_" . $tag . "_" .date("Y_m_d-H_i_s");
 
 file_put_contents($filename."_media.tab", $tab_posts);
 file_put_contents($filename."_cotag.gdf", $gdf);
 
-echo 'your files:<br />
-<a href="'.$base_url.$filename.'_media.tab">'.$filename.'_media.tab</a><br />
-<a href="'.$base_url.$filename.'_cotag.gdf">'.$filename.'_cotag.gdf</a><br /><br />';
+$files = array($filename."_media.tab",$filename."_cotag.gdf");
+
+zipit($filename,$files);
+
 
 // HTML data table
 if($htmloutput) {
