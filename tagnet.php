@@ -48,7 +48,7 @@ include "conf.php";
 include "common.php";
 
 
-// check query parameter
+// check query and other parameters
 if(!isset($_GET["tag"])) { echo "missing tag"; exit; }
 if(!isset($_GET["iterations"]) || preg_match("/\D/", $crawldepth) || $_GET["iterations"] > 100) { echo "iteration parameter problem"; exit; }
 
