@@ -29,9 +29,7 @@ ini_set( 'default_charset', 'UTF-8' );
 	<p>Source code and some documentation are available <a href="https://github.com/bernorieder/TumblrTool" target="_blank">here</a>.</p>
 	
 	<hr />
-		
-	<p>Specify a tag and the number of posts to retrieve:</p>
-
+	
 	<table>
 		<form action="tagnet.php" method="get">
 			
