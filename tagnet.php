@@ -128,7 +128,7 @@ foreach($results as $item) {
 							  "date" => $item->date,
 							  "timestamp" => $item->timestamp,
 							  "title" => clean($item->title),
-							  "caption" => clean($item->caption),
+							  "caption_or_body" => clean($item->caption),
 							  "blog_name" => clean($item->blog_name),
 							  "note_count" => $item->note_count,
 							  "post_url" => $item->post_url,
@@ -138,7 +138,8 @@ foreach($results as $item) {
 							  "source_title" => $item->source_title				  
 							  );
 							  
-	if($item->type == "video") { $posts[$item->id]["photo"] = $item->thumbnail_url; }  
+	if($item->type == "video") { $posts[$item->id]["photo"] = $item->thumbnail_url; } 
+	if($item->type == "text") { $posts[$item->id]["caption_or_body"] = $item->body; }
 										
 
 	// iterate over half of ajacency matrix
