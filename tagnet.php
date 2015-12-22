@@ -232,8 +232,7 @@ if($htmloutput) {
 		
 		echo '<tr>';
 		foreach($post as $element) {
-						
-			
+
 			if(preg_match("/\.jpg/", $element) || preg_match("/\.png/", $element) || preg_match("/\.gif/", $element)) {
 
 				if($showimages == false) {
