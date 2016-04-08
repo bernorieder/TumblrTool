@@ -17,7 +17,7 @@ ini_set( 'default_charset', 'UTF-8' );
 
 <body>
 
-	<h1>TumblerTool</h1>
+	<h1>TumblrTool</h1>
 	
 	<p>This script retrieves posts tagged with a specific term from tumblr (the /tagged API endpoint documented <a href="https://www.tumblr.com/docs/en/api/v2#tagged-method" target="_blank">here</a>) and creates:
 	<ul>	
