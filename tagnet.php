@@ -76,7 +76,9 @@ if($mode == "last") {
 	
 		$before = $data->response[count($data->response) - 1]->timestamp;
 		$results = array_merge($results,$data->response);
-	
+		
+		//print_r($data->response);
+		
 		echo ($i + 1) . " "; flush(); ob_flush();
 		sleep(0.5);
 	}
@@ -135,11 +137,11 @@ foreach($results as $item) {
 							  "tags" => implode(", ",$item->tags),
 							  "photo" => $item->photos[0]->original_size->url,
 							  "source_url" => $item->source_url,
-							  "source_title" => $item->source_title				  
+							  "source_title" => clean($item->source_title)				  
 							  );
 							  
-	if($item->type == "video") { $posts[$item->id]["photo"] = $item->thumbnail_url; } 
-	if($item->type == "text") { $posts[$item->id]["caption_or_body"] = $item->body; }
+	if($item->type == "video") { $posts[$item->id]["photo"] = clean($item->thumbnail_url); } 
+	if($item->type == "text") { $posts[$item->id]["caption_or_body"] = clean($item->body); }
 										
 
 	// iterate over half of ajacency matrix
@@ -151,10 +153,13 @@ foreach($results as $item) {
 		$tmptags[$i] = preg_replace("/,/", " ", $tmptags[$i]);
 
 		if(!isset($tags[$tmptags[$i]])) {
-			$tags[$tmptags[$i]] = 1;
-		} else {
-			$tags[$tmptags[$i]]++;
+			$tags[$tmptags[$i]] = array(
+				"count" => 0,
+				"note_count" => 0
+			);
 		}
+		$tags[$tmptags[$i]]["count"]++;
+		$tags[$tmptags[$i]]["note_count"] += $posts[$item->id]["note_count"];
 
 		for($j = $i; $j < count($tmptags); $j++) {
 
@@ -183,9 +188,9 @@ if(count($posts) == 0) { exit; }
 
 
 // create GDF output
-$gdf = "nodedef>name VARCHAR,label VARCHAR,count INT\n";
+$gdf = "nodedef>name VARCHAR,label VARCHAR,count INT,note_count INT\n";
 foreach($tags as $key => $value) {
-	$gdf .= md5($key) . "," . $key . "," . $value . "\n";
+	$gdf .= md5($key) . "," . $key . "," . $value["count"] . "," . $value["note_count"] . "\n";
 }
 
 $gdf .= "edgedef>node1 VARCHAR,node2 VARCHAR,weight INT\n";
@@ -236,7 +241,7 @@ if($htmloutput) {
 			if(preg_match("/\.jpg/", $element) || preg_match("/\.png/", $element) || preg_match("/\.gif/", $element)) {
 
 				if($showimages == false) {
-					echo '<td>	<a href="'.$element.'">'.$element.'</a></td>';	
+					echo '<td><a href="'.$element.'">'.$element.'</a></td>';	
 				} else if($showimages == "original") {
 					echo '<td><img src="'.$element.'"></td>';	
 				} else {
