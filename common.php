@@ -56,10 +56,8 @@ function zipit($filename,$files) {
 
 
 function clean($string) {
-	
-	$string = preg_replace("/[\n\r\t]/", " ", $string);
-	
-	return $string;
+		
+	return preg_replace("/[\r\n\t]+/m", " ", $string);
 }
 
 ?>
