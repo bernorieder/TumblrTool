@@ -187,7 +187,7 @@ echo '<p>The script has extracted data from ' . count($posts) . ' posts.</p>';
 if(count($posts) == 0) { exit; }
 
 
-// create GDF output
+// create GDF output for gephi
 $gdf = "nodedef>name VARCHAR,label VARCHAR,count INT,note_count INT\n";
 foreach($tags as $key => $value) {
 	$gdf .= md5($key) . "," . $key . "," . $value["count"] . "," . $value["note_count"] . "\n";
